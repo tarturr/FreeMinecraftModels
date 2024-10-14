@@ -26,6 +26,7 @@ public class MountCommand extends AdvancedCommand {
         setDescription("Mounts a model (experimental!)");
         setPermission("freeminecraftmodels.*");
         setDescription("/fmm mount <modelID>");
+        setUsage("/fmm mount <modelID>");
         setSenderType(SenderType.PLAYER);
         entityIDs = new ArrayList<>();
         FileModelConverter.getConvertedFileModels().values().forEach(fileModelConverter -> entityIDs.add(fileModelConverter.getID()));
