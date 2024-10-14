@@ -67,7 +67,7 @@ public final class FreeMinecraftModels extends JavaPlugin implements Listener {
         StaticEntity.shutdown();
         DynamicEntity.shutdown();
         LegacyHitDetection.shutdown();
-        Bukkit.getServer().getScheduler().cancelTasks(MetadataHandler.PLUGIN);
+        this.getServer().getGlobalRegionScheduler().cancelTasks(this);
         HandlerList.unregisterAll(MetadataHandler.PLUGIN);
     }
 
