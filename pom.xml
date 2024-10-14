@@ -14,16 +14,6 @@
     </properties>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <!-- This adds the Floodgate API for the resource pack creation -->
-        <repository>
-            <id>opencollab-snapshot</id>
-            <url>https://repo.opencollab.dev/maven-snapshots/</url>
-        </repository>
         <repository>
             <id>magmaguy-repo-releases</id>
             <name>MagmaGuy's Repository</name>
@@ -34,13 +24,23 @@
             <name>MagmaGuy's Snapshot Repository</name>
             <url>https://repo.magmaguy.com/snapshots</url>
         </repository>
+        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <!-- This adds the Floodgate API for the resource pack creation -->
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <!--This adds the Spigot API artifact to the build -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <groupId>dev.folia</groupId>
+            <artifactId>folia-api</artifactId>
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
