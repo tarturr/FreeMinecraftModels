@@ -3,6 +3,7 @@ package com.magmaguy.freeminecraftmodels.customentity.core;
 import com.magmaguy.freeminecraftmodels.MetadataHandler;
 import com.magmaguy.freeminecraftmodels.dataconverter.BoneBlueprint;
 import com.magmaguy.freeminecraftmodels.dataconverter.SkeletonBlueprint;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Color;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Skeleton {
 
@@ -35,7 +37,7 @@ public class Skeleton {
     @Getter
     @Setter
     private float currentHeadYaw = 0;
-    private BukkitTask damageTintTask = null;
+    private ScheduledTask damageTintTask = null;
 
     public Skeleton(SkeletonBlueprint skeletonBlueprint) {
         this.skeletonBlueprint = skeletonBlueprint;
@@ -115,20 +117,20 @@ public class Skeleton {
 
     public void tint() {
         if (damageTintTask != null) damageTintTask.cancel();
-        damageTintTask = new BukkitRunnable() {
+        damageTintTask = MetadataHandler.PLUGIN.getServer().getRegionScheduler().runAtFixedRate(MetadataHandler.PLUGIN, this.currentLocation, new Consumer<>() {
             int counter = 0;
 
             @Override
-            public void run() {
+            public void accept(ScheduledTask task) {
                 counter++;
                 if (counter > 10) {
-                    cancel();
+                    task.cancel();
                     boneMap.values().forEach(bone -> bone.setHorseLeatherArmorColor(Color.WHITE));
                     return;
                 }
                 boneMap.values().forEach(bone -> bone.setHorseLeatherArmorColor(Color.fromRGB(255, (int) (255 / (double) counter), (int) (255 / (double) counter))));
             }
-        }.runTaskTimer(MetadataHandler.PLUGIN, 0, 1);
+        }, 1, 1);
     }
 
     public void teleport(Location location) {

@@ -6,6 +6,7 @@ import com.magmaguy.freeminecraftmodels.customentity.core.LegacyHitDetection;
 import com.magmaguy.freeminecraftmodels.customentity.core.ModeledEntityInterface;
 import com.magmaguy.freeminecraftmodels.customentity.core.RegisterModelEntity;
 import com.magmaguy.freeminecraftmodels.dataconverter.FileModelConverter;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -27,7 +28,7 @@ public class DynamicEntity extends ModeledEntity implements ModeledEntityInterfa
     private static final List<DynamicEntity> dynamicEntities = new ArrayList<>();
     @Getter
     private final String name = "default";
-    private BukkitTask skeletonSync = null;
+    private ScheduledTask skeletonSync = null;
 
     private static NamespacedKey namespacedKey = new NamespacedKey(MetadataHandler.PLUGIN, "DynamicEntity");
 
@@ -81,22 +82,19 @@ public class DynamicEntity extends ModeledEntity implements ModeledEntityInterfa
     }
 
     private void syncSkeletonWithEntity() {
-        skeletonSync = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (livingEntity == null || !livingEntity.isValid()) {
-                    remove();
-                    cancel();
-                    return;
-                }
-                Location entityLocation = livingEntity.getLocation();
-                entityLocation.setYaw(NMSManager.getAdapter().getBodyRotation(livingEntity));
-                getSkeleton().setCurrentLocation(entityLocation);
-                getSkeleton().setCurrentHeadPitch(livingEntity.getEyeLocation().getPitch());
-                getSkeleton().setCurrentHeadYaw(livingEntity.getEyeLocation().getYaw());
+        if (this.livingEntity == null || !livingEntity.isValid()) {
+            this.remove();
+            return;
+        }
 
-            }
-        }.runTaskTimer(MetadataHandler.PLUGIN, 0, 1);
+        final Location entityLocation = this.livingEntity.getLocation();
+
+        this.skeletonSync = MetadataHandler.PLUGIN.getServer().getRegionScheduler().runAtFixedRate(MetadataHandler.PLUGIN, entityLocation, task -> {
+            entityLocation.setYaw(NMSManager.getAdapter().getBodyRotation(livingEntity));
+            getSkeleton().setCurrentLocation(entityLocation);
+            getSkeleton().setCurrentHeadPitch(livingEntity.getEyeLocation().getPitch());
+            getSkeleton().setCurrentHeadYaw(livingEntity.getEyeLocation().getYaw());
+        }, 1, 1);
     }
 
     @Override

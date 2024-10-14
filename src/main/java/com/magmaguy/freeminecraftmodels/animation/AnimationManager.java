@@ -4,6 +4,7 @@ import com.magmaguy.freeminecraftmodels.MetadataHandler;
 import com.magmaguy.freeminecraftmodels.customentity.ModeledEntity;
 import com.magmaguy.freeminecraftmodels.dataconverter.AnimationsBlueprint;
 import com.magmaguy.freeminecraftmodels.utils.LoopType;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -23,7 +24,7 @@ public class AnimationManager {
     private Animation jumpAnimation = null;
     private Animation deathAnimation = null;
     private Animation spawnAnimation = null;
-    private BukkitTask clock = null;
+    private ScheduledTask clock = null;
     //This one is used for preventing default animations other than death from playing for as long as it is true
     private boolean animationGracePeriod = false;
 
@@ -54,23 +55,18 @@ public class AnimationManager {
     public void start() {
         if (spawnAnimation != null) {
             states.add(spawnAnimation);
-            if (idleAnimation != null)
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        animationGracePeriod = false;
-                    }
-                }.runTaskLater(MetadataHandler.PLUGIN, spawnAnimation.getAnimationBlueprint().getDuration());
+            if (idleAnimation != null) {
+                MetadataHandler.PLUGIN.getServer().getGlobalRegionScheduler().runDelayed(MetadataHandler.PLUGIN, task -> {
+                    animationGracePeriod = false;
+                }, spawnAnimation.getAnimationBlueprint().getDuration());
+            }
         } else if (idleAnimation != null) states.add(idleAnimation);
 
-        clock = new BukkitRunnable() {
-            @Override
-            public void run() {
-                updateStates();
-                states.forEach(animation -> playAnimationFrame(animation));
-                modeledEntity.getSkeleton().transform();
-            }
-        }.runTaskTimer(MetadataHandler.PLUGIN, 0, 1);
+        clock = MetadataHandler.PLUGIN.getServer().getGlobalRegionScheduler().runAtFixedRate(MetadataHandler.PLUGIN, task -> {
+            updateStates();
+            states.forEach(this::playAnimationFrame);
+            modeledEntity.getSkeleton().transform();
+        }, 1, 1);
 
     }
 
@@ -106,7 +102,7 @@ public class AnimationManager {
         }
     }
 
-    private BukkitTask graceResetTask = null;
+    private ScheduledTask graceResetTask = null;
 
     public boolean playAnimation(String animationName, boolean blendAnimation) {
         Animation animation = animations.getAnimations().get(animationName);
@@ -115,12 +111,11 @@ public class AnimationManager {
         if (!blendAnimation) {
             states.clear();
             animationGracePeriod = true;
-            graceResetTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    animationGracePeriod = false;
-                }
-            }.runTaskLater(MetadataHandler.PLUGIN, animation.getAnimationBlueprint().getDuration());
+            graceResetTask = MetadataHandler.PLUGIN.getServer().getGlobalRegionScheduler().runDelayed(
+                    MetadataHandler.PLUGIN,
+                    task -> animationGracePeriod = false,
+                    animation.getAnimationBlueprint().getDuration()
+            );
         }
         animation.resetCounter();
         states.add(animation);

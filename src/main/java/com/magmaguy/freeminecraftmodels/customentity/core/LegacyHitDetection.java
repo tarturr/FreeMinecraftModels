@@ -65,12 +65,10 @@ public class LegacyHitDetection implements Listener {
 
     private static void addCooldown(Player player) {
         cooldowns.add(player.getUniqueId());
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                cooldowns.remove(player.getUniqueId());
-            }
-        }.runTaskLater(MetadataHandler.PLUGIN, 1);
+
+        MetadataHandler.PLUGIN.getServer().getGlobalRegionScheduler().runDelayed(MetadataHandler.PLUGIN, task -> {
+            cooldowns.remove(player.getUniqueId());
+        }, 1);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

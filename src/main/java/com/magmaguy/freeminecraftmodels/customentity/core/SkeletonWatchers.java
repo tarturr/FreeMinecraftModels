@@ -1,6 +1,7 @@
 package com.magmaguy.freeminecraftmodels.customentity.core;
 
 import com.magmaguy.freeminecraftmodels.MetadataHandler;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -13,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class SkeletonWatchers implements Listener {
     private final Skeleton skeleton;
     private final Set<UUID> viewers = new CopyOnWriteArraySet<>();
-    private BukkitTask tick;
+    private ScheduledTask tick;
 
     public SkeletonWatchers(Skeleton skeleton) {
         this.skeleton = skeleton;
@@ -25,12 +26,12 @@ public class SkeletonWatchers implements Listener {
     }
 
     private void tick() {
-        tick = new BukkitRunnable() {
-            @Override
-            public void run() {
-                updateWatcherList();
-            }
-        }.runTaskTimerAsynchronously(MetadataHandler.PLUGIN, 0, 1);
+        tick = MetadataHandler.PLUGIN.getServer().getGlobalRegionScheduler().runAtFixedRate(
+                MetadataHandler.PLUGIN,
+                task -> updateWatcherList(),
+                1,
+                1
+        );
     }
 
     private void updateWatcherList() {
