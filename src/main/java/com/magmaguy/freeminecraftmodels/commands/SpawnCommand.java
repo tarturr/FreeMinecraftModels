@@ -48,15 +48,9 @@ public class SpawnCommand extends AdvancedCommand {
         Location location = rayTraceResult.getHitBlock().getLocation().add(0.5, 1, 0.5);
         location.setPitch(0);
         location.setYaw(180);
-        if (commandData.getStringArgument("type").equalsIgnoreCase("static")) {
+        if (commandData.getStringArgument("type").equalsIgnoreCase("static"))
             StaticEntity.create(commandData.getStringArgument("model"), location);
-        } else if (commandData.getStringArgument("type").equalsIgnoreCase("dynamic")) {
-            DynamicEntity.create(
-                    commandData.getStringArgument("model"),
-                    player.getUniqueId(),
-                    false,
-                    (LivingEntity) location.getWorld().spawnEntity(location, EntityType.PIG)
-            );
-        }
+        else if (commandData.getStringArgument("type").equalsIgnoreCase("dynamic"))
+            DynamicEntity.create(commandData.getStringArgument("model"), (LivingEntity) location.getWorld().spawnEntity(location, EntityType.PIG));
     }
 }

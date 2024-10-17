@@ -1,5 +1,6 @@
 package com.magmaguy.freeminecraftmodels.customentity;
 
+import com.magmaguy.freeminecraftmodels.MetadataHandler;
 import com.magmaguy.freeminecraftmodels.animation.AnimationManager;
 import com.magmaguy.freeminecraftmodels.customentity.core.ModeledEntityInterface;
 import com.magmaguy.freeminecraftmodels.customentity.core.Skeleton;
@@ -8,6 +9,7 @@ import com.magmaguy.freeminecraftmodels.dataconverter.FileModelConverter;
 import com.magmaguy.freeminecraftmodels.dataconverter.SkeletonBlueprint;
 import com.magmaguy.freeminecraftmodels.utils.ChunkHasher;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -94,7 +96,9 @@ public class ModeledEntity implements ModeledEntityInterface {
 
     public void remove() {
         skeleton.remove();
-        if (livingEntity != null) livingEntity.remove();
+        if (livingEntity != null) {
+            Bukkit.getRegionScheduler().execute(MetadataHandler.PLUGIN, livingEntity.getLocation(), () -> livingEntity.remove());
+        }
 //        ModeledEntityEvents.removeLoadedModeledEntity(this);
 //        ModeledEntityEvents.removeUnloadedModeledEntity(this);
         terminateAnimation();

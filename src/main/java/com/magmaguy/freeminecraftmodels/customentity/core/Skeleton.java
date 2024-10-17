@@ -29,6 +29,7 @@ public class Skeleton {
     @Getter
     private final SkeletonWatchers skeletonWatchers;
     private final List<Bone> nametags = new ArrayList<>();
+    @Setter
     private Location currentLocation = null;
     @Getter
     @Setter
@@ -69,10 +70,6 @@ public class Skeleton {
     public void remove() {
         skeletonWatchers.remove();
         boneMap.values().forEach(Bone::remove);
-    }
-
-    public void setCurrentLocation(Location location) {
-        this.generateDisplays(location);
     }
 
     /**
@@ -120,7 +117,7 @@ public class Skeleton {
 
     public void tint() {
         if (damageTintTask != null) damageTintTask.cancel();
-        damageTintTask = MetadataHandler.PLUGIN.getServer().getRegionScheduler().runAtFixedRate(MetadataHandler.PLUGIN, this.currentLocation, new Consumer<>() {
+        damageTintTask = MetadataHandler.PLUGIN.getServer().getGlobalRegionScheduler().runAtFixedRate(MetadataHandler.PLUGIN, new Consumer<>() {
             int counter = 0;
 
             @Override

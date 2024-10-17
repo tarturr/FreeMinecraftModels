@@ -11,7 +11,6 @@ import com.magmaguy.freeminecraftmodels.customentity.ModeledEntityEvents;
 import com.magmaguy.freeminecraftmodels.customentity.StaticEntity;
 import com.magmaguy.freeminecraftmodels.customentity.core.LegacyHitDetection;
 import com.magmaguy.freeminecraftmodels.dataconverter.FileModelConverter;
-import com.magmaguy.freeminecraftmodels.events.PlayerMoveOnModelEvent;
 import com.magmaguy.freeminecraftmodels.listeners.EntityTeleportEvent;
 import com.magmaguy.freeminecraftmodels.utils.VersionChecker;
 import com.magmaguy.magmacore.MagmaCore;
@@ -47,7 +46,6 @@ public final class FreeMinecraftModels extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new LegacyHitDetection(), this);
         Bukkit.getPluginManager().registerEvents(new VersionChecker.VersionCheckerEvents(), this);
         Bukkit.getPluginManager().registerEvents(new EntityTeleportEvent(), this);
-        this.getServer().getPluginManager().registerEvents(new PlayerMoveOnModelEvent(), this);
         NMSManager.initializeAdapter(this);
         VersionChecker.checkPluginVersion();
         CommandManager manager = new CommandManager(this, "freeminecraftmodels");

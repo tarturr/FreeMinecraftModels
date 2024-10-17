@@ -22,7 +22,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class DynamicEntity extends ModeledEntity implements ModeledEntityInterface {
     @Getter
@@ -31,11 +30,11 @@ public class DynamicEntity extends ModeledEntity implements ModeledEntityInterfa
     private final String name = "default";
     private ScheduledTask skeletonSync = null;
 
-    private static NamespacedKey namespacedKey = new NamespacedKey(MetadataHandler.PLUGIN, "dynamic_entity");
+    private static NamespacedKey namespacedKey = new NamespacedKey(MetadataHandler.PLUGIN, "DynamicEntity");
 
     public static boolean isDynamicEntity(LivingEntity livingEntity) {
         if (livingEntity == null) return false;
-        return livingEntity.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING);
+        return livingEntity.getPersistentDataContainer().has(namespacedKey, PersistentDataType.BYTE);
     }
 
     public static DynamicEntity getDynamicEntity(LivingEntity livingEntity) {
@@ -58,19 +57,19 @@ public class DynamicEntity extends ModeledEntity implements ModeledEntityInterfa
 
     //safer since it can return null
     @Nullable
-    public static DynamicEntity create(String entityID, UUID ownerUUID, boolean isMounting, LivingEntity livingEntity) {
+    public static DynamicEntity create(String entityID, LivingEntity livingEntity) {
         FileModelConverter fileModelConverter = FileModelConverter.getConvertedFileModels().get(entityID);
         if (fileModelConverter == null) return null;
         DynamicEntity dynamicEntity = new DynamicEntity(entityID, livingEntity.getLocation());
         dynamicEntity.spawn(livingEntity);
-
+        livingEntity.setVisibleByDefault(false);
         Bukkit.getOnlinePlayers().forEach(player -> {
             if (player.getLocation().getWorld().equals(dynamicEntity.getLocation().getWorld())) {
                 player.hideEntity(MetadataHandler.PLUGIN, livingEntity);
             }
         });
 
-        livingEntity.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, new MountingData(entityID, ownerUUID, isMounting).toString());
+        livingEntity.getPersistentDataContainer().set(namespacedKey, PersistentDataType.BYTE, (byte) 0);
         return dynamicEntity;
     }
 
@@ -101,8 +100,10 @@ public class DynamicEntity extends ModeledEntity implements ModeledEntityInterfa
     @Override
     public void remove() {
         super.remove();
-        if (livingEntity != null)
-            livingEntity.remove();
+        if (livingEntity != null) {
+            Bukkit.getRegionScheduler().execute(MetadataHandler.PLUGIN, livingEntity.getLocation(), () -> livingEntity.remove());
+        }
+
         if (skeletonSync != null) skeletonSync.cancel();
     }
 
